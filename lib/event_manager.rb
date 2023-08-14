@@ -72,7 +72,7 @@ def save_thank_you_letter(id,form_letter)
 #     save_thank_you_letter(id,form_letter)
 #   end
 
-# ? Testing method
+# ? Testing method assignment 1
 contents.each do |row|
     name = row[:first_name] # => show names
     zipcode = clean_zipcode(row[:zipcode])
