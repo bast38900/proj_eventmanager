@@ -3,6 +3,7 @@ puts "--- Event Manager 2.0 Initialized! ---\n\n"
 require 'csv'
 require 'google/apis/civicinfo_v2'
 require 'erb'
+require 'date'
 
 contents = CSV.open(
     'event_attendees.csv',
@@ -14,7 +15,7 @@ def clean_zipcode(zipcode)
     zipcode.to_s.rjust(5, '0')[0..4]
 end
 
-# method for claning numbers
+# method for cleaning numbers
 def clean_homephone(homephone)
     # remove all non-numeric characters
     homephone.gsub!(/[^\d]/,'')
@@ -26,6 +27,31 @@ def clean_homephone(homephone)
         homephone[1..-1]
     else
         'bad number'
+    end
+end
+
+#method to count the frequency of element in an array
+def count_frequency(array)
+    array.max_by {|arr| array.count(arr)}
+end
+
+# method to convert wday to day names
+def wday_to_day(wday)
+    case wday
+    when 0
+        "Monday"
+    when 1
+        "Tuesday"
+    when 2
+        "Wednesday"
+    when 3
+        "Thursday"
+    when 4
+        "Friday"
+    when 5
+        "Saturday"
+    when 6
+        "Sunday"
     end
 end
 
@@ -60,24 +86,38 @@ def save_thank_you_letter(id,form_letter)
   
   template_letter = File.read('form_letter.erb')
   erb_template = ERB.new template_letter
-  
-#   contents.each do |row|
-#     id = row[0]
-#     name = row[:first_name]
+
+# # ? Testing method assignment 1
+# contents.each do |row|
+#     name = row[:first_name] # => show names
 #     zipcode = clean_zipcode(row[:zipcode])
-#     legislators = legislators_by_zipcode(zipcode)
-  
-#     form_letter = erb_template.result(binding)
-  
-#     save_thank_you_letter(id,form_letter)
-#   end
+#     homephone = clean_homephone(row[:homephone]) 
 
-# ? Testing method assignment 1
+#     puts "#{name}, #{homephone}"
+# end
+
+# ? Testing method assignment 2
+# arrays for registration information
+arr_hours = []
+arr_days = []
+
 contents.each do |row|
-    name = row[:first_name] # => show names
-    zipcode = clean_zipcode(row[:zipcode])
-    homephone = clean_homephone(row[:homephone]) 
+    name = row[:first_name]
+    regdate = row[:regdate]
 
+    # get registration information and convert to DateTime object
+    reg_info = DateTime.strptime(regdate, '%m/%d/%y %H:%M')
+    
+    # get hours and add to array
+    time_of_day = reg_info.hour
+    arr_hours.push(time_of_day)
+    
+    # get weeks and add to array
+    day_of_week = reg_info.wday
+    arr_days.push(day_of_week)
 
-    puts "#{name}, #{homephone}"
+    puts "#{name}, registration date: #{regdate}"
 end
+
+puts "\nmost active registration hour: #{count_frequency(arr_hours)}"
+puts "most active registration day: #{wday_to_day(count_frequency(arr_days))}"
