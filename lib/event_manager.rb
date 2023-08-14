@@ -1,1 +1,0 @@
-puts 'Event Manager Initialized!'
